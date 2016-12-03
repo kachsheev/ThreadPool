@@ -38,6 +38,43 @@ private:
 	types::Size queueSize;
 };
 
+template<typename T>
+class QueueBuffer<T, 0u>
+{
+public:
+	QueueBuffer();
+	~QueueBuffer();
+
+	void push(const T &object);
+	T pop();
+
+	T &tail();
+	T &head();
+
+	T &operator[](types::Size index);
+
+	T *data();
+
+	void resize(types::Size newCapacity);
+
+	types::Size size() const noexcept;
+	constexpr types::Size capacity() const noexcept;
+
+	const T &tail() const;
+	const T &head() const;
+
+	const T &operator[](types::Size index) const;
+
+	const T *data() const;
+
+private:
+	T *queue;
+	types::Size indexHead;
+	types::Size indexTail;
+	types::Size queueSize;
+	types::Size queueCapacity;
+};
+
 // implementation
 template<typename T, types::Size SIZE>
 QueueBuffer<T, SIZE>::QueueBuffer() :

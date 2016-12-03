@@ -5,6 +5,14 @@ Mutex::Mutex()
 	init();
 }
 
+Mutex::Mutex(bool locked): Mutex()
+{
+	if (locked)
+	{
+		lock();
+	}
+}
+
 Mutex::~Mutex()
 {
 	clear();

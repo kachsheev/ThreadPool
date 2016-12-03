@@ -23,6 +23,7 @@ public:
 	};
 
 	Mutex();
+	Mutex(bool locked);
 	virtual ~Mutex();
 
 	void lock();

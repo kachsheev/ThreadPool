@@ -8,6 +8,7 @@
 #include "Descriptor.hpp"
 #include "Semaphore.hpp"
 #include "Mutex.hpp"
+#include "Thread.hpp"
 #include "Templates/QueueBuffer.hpp"
 
 class ThreadPool
@@ -66,36 +67,38 @@ private:
 	struct ProcessingTasks;
 	struct FinishedTasks;
 
-	class ThreadId
+	class Thread: public ::Thread
 	{
-		Descriptor descriptor;
-		Semaphore *join;
-		Mutex *internal;
-		ThreadPool *parent;
-		ProcessingTasks *processingTasks;
-		FinishedTasks *finishedTasks;
+	protected:
+		virtual void run();
 
-		ThreadPool::ThreadStatus status;
+		ThreadStatus getStatus();
+
+	private:
+		struct ThreadId
+		{
+			Descriptor descriptor;
+			Semaphore *join;
+			Mutex *internal;
+			ThreadPool *parent;
+			ProcessingTasks *processingTasks;
+			FinishedTasks *finishedTasks;
+
+			ThreadPool::ThreadStatus status;
+		} id;
 
 		friend class ThreadPool;
 	};
-	void init(types::Size countThreads);
-	void createThread(ThreadId &thread, ThreadTaskType);
 
+	void init(types::Size countThreads);
 	void clear();
-	void joinThread(ThreadId &thread);
+	void joinThread(Thread &thread);
 
 	types::Size threadCapacity;
-	ThreadId *arrayThread;
+	Thread *arrayThread;
 	Semaphore *blockedSemaphores;
 	ProcessingTasks *processingTasks;
 	FinishedTasks *finishedTasks;
-
-	ThreadId shadowThread;
-	Mutex stopShadow;
-
-	static void *taskFunc(void *data);
-	static void *shadowFunc(void *data);
 };
 
 class ThreadPool::TaskId

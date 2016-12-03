@@ -14,27 +14,39 @@ struct ThreadPool::FinishedTasks:
 {
 };
 
-void *ThreadPool::taskFunc(void *data)
+void ThreadPool::Thread::run()
 {
-	ThreadPool::ThreadId *thread = reinterpret_cast<ThreadPool::ThreadId *>(data);
+	static const types::Size MAX_COUNT_ITERATIONS_WAITING = 50;
 	Mutex internalMutex;
-	thread->internal = &internalMutex;
-	while(!thread->join->tryWait())
+	types::Size counter;
+	id.internal = &internalMutex;
+	while(!id.join->tryWait())
 	{
-		thread->status = ThreadPool::ThreadStatus::READY;
-		while (thread->processingTasks->size())
+		id.status = ThreadPool::ThreadStatus::READY;
+		if (id.processingTasks->size())
 		{
-			thread->status = ThreadPool::ThreadStatus::PERFOMING;
+			id.status = ThreadPool::ThreadStatus::PERFOMING;
 
 			internalMutex.lock();
-			(*thread->processingTasks->head())();
+			(*id.processingTasks->head())();
 			internalMutex.unlock();
 
-			thread->finishedTasks->push(thread->processingTasks->pop());
+			id.finishedTasks->push(id.processingTasks->pop());
+		}
+		else
+		{
+			if (counter < MAX_COUNT_ITERATIONS_WAITING)
+			{
+				++counter;
+			}
+			else
+			{
+				// sleep
+				internalMutex.lock();
+			}
 		}
 	}
-	thread->status = ThreadPool::ThreadStatus::FINISHED;
-	return nullptr;
+	id.status = ThreadPool::ThreadStatus::FINISHED;
 }
 
 ThreadPool::ThreadPool() :
@@ -96,7 +108,7 @@ ThreadPool::TaskStatus ThreadPool::getTaskStatus(const TaskId &taskId) const
 
 	if (taskId.pool && taskId.task && taskId.threadIndex < threadCapacity)
 	{
-		ProcessingTasks &processing = *(arrayThread[taskId.threadIndex].processingTasks);
+		ProcessingTasks &processing = *(arrayThread[taskId.threadIndex].id.processingTasks);
 		for (Size i = 0; i < processing.size(); ++i)
 		{
 			if (taskId.task == processing[i])
@@ -112,7 +124,7 @@ ThreadPool::TaskStatus ThreadPool::getTaskStatus(const TaskId &taskId) const
 			}
 		}
 
-		FinishedTasks &finished = *(arrayThread[taskId.threadIndex].finishedTasks);
+		FinishedTasks &finished = *(arrayThread[taskId.threadIndex].id.finishedTasks);
 		for (Size i = 0; i < finished.size(); ++i)
 		{
 			if (taskId.task == finished[i])
@@ -139,9 +151,9 @@ void ThreadPool::start()
 {
 	using Size = types::Size;
 
-	for (Size i = threadCapacity; i != 0; --i)
+	for (Size i = 0; i != threadCapacity; ++i)
 	{
-		createThread(arrayThread[threadCapacity - i], ThreadPool::taskFunc);
+		arrayThread->run();
 	}
 }
 
@@ -160,7 +172,7 @@ void ThreadPool::init(types::Size countThreads)
 	using Size = types::Size;
 
 	threadCapacity = countThreads;
-	arrayThread = new ThreadId[countThreads];
+	arrayThread = new Thread[countThreads];
 	blockedSemaphores = new Semaphore[countThreads];
 	processingTasks = new ProcessingTasks[countThreads];
 	finishedTasks = new FinishedTasks[countThreads];
@@ -168,20 +180,11 @@ void ThreadPool::init(types::Size countThreads)
 	for (Size i = 0; i < threadCapacity; ++i)
 	{
 		blockedSemaphores[i].post();
-		arrayThread[i].join = blockedSemaphores + i;
-		arrayThread[i].parent = this;
-		arrayThread[i].processingTasks = processingTasks + i;
-		arrayThread[i].finishedTasks = finishedTasks + i;
+		arrayThread[i].id.join = blockedSemaphores + i;
+		arrayThread[i].id.parent = this;
+		arrayThread[i].id.processingTasks = processingTasks + i;
+		arrayThread[i].id.finishedTasks = finishedTasks + i;
 	}
-}
-
-void ThreadPool::createThread(ThreadPool::ThreadId &thread,
-		ThreadPool::ThreadTaskType threadTask)
-{
-	pthread_create(&thread.descriptor.get(),
-			&thread.descriptor.attributes(),
-			threadTask,
-			reinterpret_cast<void *>(&thread));
 }
 
 void ThreadPool::clear()
@@ -194,8 +197,8 @@ void ThreadPool::clear()
 	delete[] arrayThread;
 }
 
-void ThreadPool::joinThread(ThreadId &thread)
+void ThreadPool::joinThread(Thread &thread)
 {
-	thread.join->post();
-	pthread_join(thread.descriptor.get(), nullptr);
+	thread.id.join->post();
+	thread.join();
 }
