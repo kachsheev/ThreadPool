@@ -1,7 +1,7 @@
 #ifndef TESTS_ALLTESTS_HPP
 #define TESTS_ALLTESTS_HPP
 
-#include <AbstractTask.hpp>
+#include "../AbstractTask.hpp"
 
 class AllTests: public AbstractTask
 {

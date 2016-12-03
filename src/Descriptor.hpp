@@ -2,7 +2,7 @@
 #define DESCRIPTOR_HPP
 
 #include <pthread.h>
-#include <Templates/PthreadObject.hpp>
+#include "Templates/PthreadObject.hpp"
 
 class Descriptor: public PthreadObject<pthread_t, pthread_attr_t>
 {

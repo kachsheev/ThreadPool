@@ -2,8 +2,8 @@
 #define MUTEX_HPP
 
 #include <pthread.h>
-#include <Templates/PthreadObject.hpp>
-#include <Templates/Locker.hpp>
+#include "Templates/PthreadObject.hpp"
+#include "Templates/Locker.hpp"
 
 class Mutex: public PthreadObject<pthread_mutex_t, pthread_mutexattr_t>
 {

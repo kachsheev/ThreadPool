@@ -1,48 +1,6 @@
 #include <cassert>
-#include <ThreadPool.hpp>
-
-template<typename T, types::Size SIZE>
-struct RwLockQueueBuffer
-{
-	RwLockQueueBuffer() : rwLock(1)
-	{
-	}
-
-	void push(T &&t)
-	{
-		Semaphore::Locker locker(rwLock);
-		queue.push(t);
-	}
-
-	T pop()
-	{
-		Semaphore::Locker locker(rwLock);
-		T t = queue.pop();
-		return t;
-	}
-
-	T &head()
-	{
-		Semaphore::Locker locker(rwLock);
-		return queue.head();
-	}
-
-	types::Size size()
-	{
-		Semaphore::Locker locker(rwLock);
-		return queue.size();
-	}
-
-	T &operator[](types::Size index)
-	{
-		Semaphore::Locker locker(rwLock);
-		return queue[index];
-	}
-
-private:
-	QueueBuffer<T, SIZE> queue;
-	Semaphore rwLock;
-};
+#include "Templates/RwLockQueueBuffer.hpp"
+#include "ThreadPool.hpp"
 
 struct ThreadPool::ProcessingTasks:
 		public RwLockQueueBuffer<AbstractTask *,
