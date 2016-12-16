@@ -50,6 +50,8 @@ void ThreadPool::Thread::run()
 }
 
 ThreadPool::ThreadPool() :
+		lastId(0),
+		lastIdSemaphore(1),
 		threadCapacity(0),
 		arrayThread(nullptr),
 		blockedSemaphores(nullptr),
@@ -72,29 +74,31 @@ ThreadPool::TaskId ThreadPool::addTask(AbstractTask &task)
 {
 	using Size = types::Size;
 
-	static Size lastId = 0;
-	static Semaphore semaphore(1);
-
-	TaskId taskId;
 	types::Size countTasks = BUFFER_PROCESSING_TASKS_SIZE;
-	ProcessingTasks *needTaskBuffer = nullptr;
+	types::Size queueNumber = 0;
 	for (Size i = 0; i < threadCapacity; ++i)
 	{
 		if (processingTasks[i].size() < countTasks) {
 			countTasks = processingTasks[i].size();
-			needTaskBuffer = &processingTasks[i];
+			queueNumber = i;
 		}
 	}
 
-	if (needTaskBuffer)
+	return addTask(queueNumber, task);
+}
+
+ThreadPool::TaskId ThreadPool::addTask(types::Size queueNumber, AbstractTask &task)
+{
+	TaskId taskId;
+	if (queueNumber < threadCapacity)
 	{
-		needTaskBuffer->push(&task);
+		processingTasks[queueNumber].push(&task);
 
-		semaphore.wait();
+		lastIdSemaphore.wait();
 		taskId.id = lastId++;
-		semaphore.post();
+		lastIdSemaphore.post();
 
-		taskId.threadIndex = needTaskBuffer - processingTasks;
+		taskId.threadIndex = queueNumber;
 		taskId.task = &task;
 		taskId.pool = this;
 	}
@@ -153,7 +157,7 @@ void ThreadPool::start()
 
 	for (Size i = 0; i != threadCapacity; ++i)
 	{
-		arrayThread->run();
+		arrayThread->start();
 	}
 }
 
@@ -163,7 +167,8 @@ void ThreadPool::stop()
 
 	for (Size i = 0; i < threadCapacity; ++i)
 	{
-		joinThread(arrayThread[i]);
+		arrayThread[i].id.join->post();
+		arrayThread[i].join();
 	}
 }
 
@@ -195,10 +200,4 @@ void ThreadPool::clear()
 	delete[] processingTasks;
 	delete[] blockedSemaphores;
 	delete[] arrayThread;
-}
-
-void ThreadPool::joinThread(Thread &thread)
-{
-	thread.id.join->post();
-	thread.join();
 }

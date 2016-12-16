@@ -37,6 +37,7 @@ public:
 	ThreadPool &operator=(const ThreadPool &) = delete;
 
 	TaskId addTask(AbstractTask &task);
+	TaskId addTask(types::Size queueNumber, AbstractTask &task);
 	TaskStatus getTaskStatus(const TaskId &taskId) const;
 
 	void setCountThreads(types::Size size);
@@ -92,7 +93,9 @@ private:
 
 	void init(types::Size countThreads);
 	void clear();
-	void joinThread(Thread &thread);
+
+	types::Size lastId;
+	Semaphore lastIdSemaphore;
 
 	types::Size threadCapacity;
 	Thread *arrayThread;
@@ -107,6 +110,7 @@ public:
 	TaskId() : id(0), threadIndex(0), task(nullptr), pool(nullptr)
 	{
 	}
+
 	TaskId(ThreadPool::TaskId &&taskId) : id(taskId.id),
 			threadIndex(taskId.threadIndex),
 			task(taskId.task), pool(taskId.pool)
