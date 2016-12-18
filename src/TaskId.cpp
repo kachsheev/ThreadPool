@@ -1,29 +1,26 @@
-#include "ThreadPool.hpp"
+#include "TaskId.hpp"
 
-ThreadPool::TaskId &ThreadPool::TaskId::operator =(const ThreadPool::TaskId &taskId)
+TaskId &TaskId::operator =(const TaskId &taskId)
 {
 	id = taskId.id;
-	threadIndex = taskId.threadIndex;
 	task = taskId.task;
-	pool = taskId.pool;
+	thread = taskId.thread;
 	return *this;
 }
 
-ThreadPool::TaskId &ThreadPool::TaskId::operator =(ThreadPool::TaskId &&taskId)
+TaskId &TaskId::operator =(TaskId &&taskId)
 {
 	id = taskId.id;
-	threadIndex = taskId.threadIndex;
 	task = taskId.task;
-	pool = taskId.pool;
+	thread = taskId.thread;
 	return *this;
 }
 
-bool operator==(const ThreadPool::TaskId &taskId1, const ThreadPool::TaskId &taskId2)
+bool operator==(const TaskId &taskId1, const TaskId &taskId2)
 {
-	if (taskId1.pool == taskId2.pool
+	if (taskId1.thread == taskId2.thread
 			&& taskId1.task == taskId2.task
-			&& taskId1.id == taskId2.id
-			&& taskId1.threadIndex == taskId2.threadIndex)
+			&& taskId1.id == taskId2.id)
 	{
 		return true;
 	}
@@ -33,12 +30,11 @@ bool operator==(const ThreadPool::TaskId &taskId1, const ThreadPool::TaskId &tas
 	}
 }
 
-bool operator!=(const ThreadPool::TaskId &taskId1, const ThreadPool::TaskId &taskId2)
+bool operator!=(const TaskId &taskId1, const TaskId &taskId2)
 {
-	if (taskId1.pool != taskId2.pool
+	if (taskId1.thread != taskId2.thread
 			|| taskId1.task != taskId2.task
-			|| taskId1.id != taskId2.id
-			|| taskId1.threadIndex != taskId2.threadIndex)
+			|| taskId1.id != taskId2.id)
 	{
 		return true;
 	}
