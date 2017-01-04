@@ -3,12 +3,15 @@
 
 #include "Types.hpp"
 #include "AbstractTask.hpp"
+#include "Thread.hpp"
 
 class QueueThread;
 
 class TaskId
 {
 public:
+	typedef types::ThreadType ThreadType;
+
 	TaskId() : id(0), task(nullptr), thread(nullptr)
 	{
 	}
@@ -29,24 +32,29 @@ public:
 
 private:
 	TaskId(types::Uint64 taskId,
-			AbstractTask *thisTask, QueueThread *parentThread) :
+			AbstractTask *thisTask, Thread *parentThread) :
 			id(taskId), task(thisTask), thread(parentThread)
 	{
 	}
 
 	types::Uint64 id;
 	AbstractTask *task;
-	QueueThread *thread;
+	Thread *thread;
+	ThreadType threadType;
+
+	friend bool operator==(const TaskId& taskId1,
+			const TaskId& taskId2);
+	friend bool operator!=(const TaskId& taskId1,
+			const TaskId& taskId2);
 
 	friend class ThreadPool;
 	friend class QueueThread;
-	friend bool operator ==(const TaskId& taskId1, const TaskId& taskId2);
-	friend bool operator !=(const TaskId& taskId1, const TaskId& taskId2);
+	friend class TaskThread;
 };
 
-bool operator ==(const TaskId& taskId1,
+bool operator==(const TaskId& taskId1,
 		const TaskId& taskId2);
-bool operator !=(const TaskId& taskId1,
+bool operator!=(const TaskId& taskId1,
 		const TaskId& taskId2);
 
 #endif // TASKID_HPP
