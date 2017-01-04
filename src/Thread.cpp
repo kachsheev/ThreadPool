@@ -6,7 +6,10 @@
  */
 #include "Thread.hpp"
 
-Thread::Thread(): descriptor()
+Thread::Thread() :
+		descriptor(),
+		status(Thread::Status::NOT_RUN),
+		semaphore(1u)
 {
 }
 
@@ -17,7 +20,9 @@ Thread::~Thread()
 
 void Thread::start()
 {
-	pthread_create(&descriptor.get(), &descriptor.attributes(), Thread::threadTask, nullptr);
+	setStatus(Thread::Status::STARTING);
+	pthread_create(&descriptor.get(), &descriptor.attributes(),
+			Thread::threadTask, nullptr);
 }
 
 void Thread::join()
@@ -27,12 +32,38 @@ void Thread::join()
 
 void Thread::cancel()
 {
-	pthread_cancel(descriptor.get());
+	if (pthread_cancel(descriptor.get()) < 0)
+	{
+		setStatus(Thread::Status::FINISHED);
+	}
+}
+
+Thread::Status Thread::getStatus() const
+{
+	return status;
+}
+
+void Thread::setStatus(Thread::Status newStatus)
+{
+	volatile Semaphore::Locker locker(semaphore);
+	status = newStatus;
+}
+
+void Thread::enableCancel()
+{
+}
+
+void Thread::disableCancel()
+{
 }
 
 void *Thread::threadTask(void *data)
 {
 	Thread *thread = reinterpret_cast<Thread *>(data);
+
+	thread->setStatus(Thread::Status::READY);
 	thread->run();
+	thread->setStatus(Thread::Status::FINISHED);
+
 	return nullptr;
 }

@@ -3,15 +3,16 @@
 
 #include "../AbstractTask.hpp"
 
-class AllTests: public AbstractTask
+class AllTests
 {
 public:
 	AllTests();
-	virtual ~AllTests();
+	~AllTests();
 
-	virtual void operator ()();
+	void operator ()();
 private:
 	void testQueueBuffer();
+	void testTaskThread();
 	void testThreadPool();
 };
 

@@ -1,5 +1,6 @@
-#include "QueueBufferTest.hpp"
-#include "ThreadPoolTest.hpp"
+#include "QueueBuffer/QueueBufferTest.hpp"
+#include "TaskThread/TaskThreadTest.hpp"
+#include "ThreadPool/ThreadPoolTest.hpp"
 #include "AllTests.hpp"
 
 AllTests::AllTests()
@@ -13,17 +14,24 @@ AllTests::~AllTests()
 void AllTests::operator ()()
 {
 	testQueueBuffer();
+	testTaskThread();
 	testThreadPool();
 }
 
 void AllTests::testQueueBuffer()
 {
 	QueueBufferTest queueBufferTest;
-	queueBufferTest();
+	queueBufferTest.start();
 }
 
 void AllTests::testThreadPool()
 {
-	ThreadPoolTest threadPoolTest;
-	threadPoolTest();
+//	ThreadPoolTest threadPoolTest;
+//	threadPoolTest.start();
+}
+
+void AllTests::testTaskThread()
+{
+	TaskThreadTest taskThreadTest;
+	taskThreadTest.start();
 }
