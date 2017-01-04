@@ -1,34 +1,5 @@
 #include "ThreadPoolTest.hpp"
 
-class HelloTask: public AbstractTask
-{
-public:
-	HelloTask(): finished(false)
-	{
-	}
-
-	bool isFinished()
-	{
-		return finished;
-	}
-
-	virtual ~HelloTask()
-	{
-	}
-
-protected:
-	virtual void operator()()
-	{
-//		std::cout << "Hello!\n";
-//		std::cout.flush();
-		finished = true;
-		return;
-	}
-
-private:
-	bool finished;
-};
-
 ThreadPoolTest::ThreadPoolTest() : pool(nullptr)
 {
 }
@@ -37,35 +8,35 @@ ThreadPoolTest::~ThreadPoolTest()
 {
 }
 
-void ThreadPoolTest::operator ()()
-{
-	// first
-	constructors();
+//int ThreadPoolTest::runTest()
+//{
+//	// first
+//	constructors();
 
-	addTask();
-	getTaskStatus();
+//	addTask();
+//	getTaskStatus();
 
-	start();
-	getTaskStatus();
+//	runTest();
+//	getTaskStatus();
 
-	stop();
+//	stop();
 
-	destrutor();
+//	destrutor();
 
-	// second
-	constructors();
-	setCountThreads();
+//	// second
+//	constructors();
+//	setCountThreads();
 
-	addTask();
-	getTaskStatus();
+//	addTask();
+//	getTaskStatus();
 
-	start();
-	getTaskStatus();
+//	runTest();
+//	getTaskStatus();
 
-	stop();
+//	stop();
 
-	destrutor();
-}
+//	destrutor();
+//}
 
 void ThreadPoolTest::constructors()
 {
@@ -90,7 +61,7 @@ void ThreadPoolTest::destrutor()
 void ThreadPoolTest::addTask()
 {
 	using Size = types::Size;
-	using TaskId = ThreadPool::TaskId;
+	using TaskId = ::TaskId;
 
 	for (Size i = 0; i < tasks.capacity(); ++i)
 	{
@@ -141,7 +112,7 @@ void ThreadPoolTest::getTaskStatus()
 
 void ThreadPoolTest::setCountThreads()
 {
-	pool->setCountThreads(COUNT_THREADS);
+//	pool->setCountThreads(COUNT_THREADS);
 }
 
 void ThreadPoolTest::start()

@@ -3,14 +3,11 @@
 
 using std::cout;
 
-QueueBufferTest::QueueBufferTest()
-{
-}
-
 QueueBufferTest::~QueueBufferTest()
 {
 }
 
+/*
 void QueueBufferTest::operator()()
 {
 	for (count = 0; count < 2; ++count)
@@ -25,6 +22,7 @@ void QueueBufferTest::operator()()
 		}
 	}
 }
+
 
 void QueueBufferTest::push()
 {
@@ -50,8 +48,6 @@ void QueueBufferTest::push()
 		}
 		cout << '\n';
 		cout.flush();
-
-		isValid(operatorIndex(array, sizeof(array)/sizeof(array[0])));
 	}
 	else if (count == 1)
 	{
@@ -87,8 +83,6 @@ void QueueBufferTest::pop()
 		{
 			cout << ' ' << queue[i];
 		}
-
-		isValid(operatorIndex(array, sizeof(array)/sizeof(array[0])));
 	}
 	cout << '\n';
 	cout.flush();
@@ -110,8 +104,6 @@ void QueueBufferTest::tail()
 	}
 	cout << '\n';
 	cout.flush();
-
-	isValid(valid);
 }
 
 void QueueBufferTest::head()
@@ -128,6 +120,5 @@ void QueueBufferTest::head()
 	{
 		valid = false;
 	}
-
-	isValid(valid);
 }
+*/

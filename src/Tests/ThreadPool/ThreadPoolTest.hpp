@@ -1,16 +1,14 @@
-#ifndef TESTS_THREADPOOLTEST_HPP
-#define TESTS_THREADPOOLTEST_HPP
+#ifndef TESTS_THREADPOOL_THREADPOOLTEST_HPP
+#define TESTS_THREADPOOL_THREADPOOLTEST_HPP
 
-#include "AbstractTest.hpp"
-#include "../ThreadPool.hpp"
+#include "Tests.hpp"
+#include "../../Types.hpp"
 
-class ThreadPoolTest : public AbstractTest
+class ThreadPoolTest: public TestAggregator
 {
 public:
 	ThreadPoolTest();
 	virtual ~ThreadPoolTest();
-
-	virtual void operator()();
 
 private:
 	enum Constants: types::Size
@@ -31,7 +29,7 @@ private:
 
 	ThreadPool *pool;
 	QueueBuffer<AbstractTask *, COUNT_TASKS> tasks;
-	QueueBuffer<ThreadPool::TaskId, COUNT_TASKS> taskIds;
+	QueueBuffer<TaskId, COUNT_TASKS> taskIds;
 };
 
-#endif // TESTS_THREADPOOLTEST_HPP
+#endif // TESTS_THREADPOOL_THREADPOOLTEST_HPP
