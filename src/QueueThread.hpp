@@ -7,10 +7,11 @@
 #include "Mutex.hpp"
 #include "Thread.hpp"
 
+// TODO: напистаь тесты для потока с очередью задач
 class QueueThread: public Thread
 {
 public:
-	typedef types::ThreadStatus Status;
+	typedef Thread::Status Status;
 	typedef types::TaskStatus TaskStatus;
 
 	QueueThread();
