@@ -12,6 +12,7 @@ public:
 	~QueueBuffer();
 
 	void push(const T &object);
+	void push(T &&object);
 	T pop();
 
 	T &tail();
@@ -47,6 +48,7 @@ public:
 	~QueueBuffer();
 
 	void push(const T &object);
+	void push(T &&object);
 	T pop();
 
 	T &tail();
@@ -93,6 +95,24 @@ QueueBuffer<T, SIZE>::~QueueBuffer()
 // non-const
 template<typename T, types::Size SIZE>
 void QueueBuffer<T, SIZE>::push(const T &object)
+{
+	if (size())
+	{
+		if (indexHead + 1 == capacity())
+		{
+			indexHead = 0;
+		}
+		else
+		{
+			++indexHead;
+		}
+	}
+	++queueSize;
+	queue[indexHead] = object;
+}
+
+template<typename T, types::Size SIZE>
+void QueueBuffer<T, SIZE>::push(T &&object)
 {
 	if (size())
 	{
@@ -252,6 +272,31 @@ void QueueBuffer<T, 0u>::push(const T &object)
 }
 
 template<typename T>
+void QueueBuffer<T, 0u>::push(T &&object)
+{
+	if (size())
+	{
+		if (indexHead + 1 == capacity())
+		{
+			if (size() == capacity())
+			{
+				resize(capacity() * 2);
+			}
+			else
+			{
+				indexHead = 0;
+			}
+		}
+		else
+		{
+			++indexHead;
+		}
+	}
+	++queueSize;
+	queue[indexHead] = object;
+}
+
+template<typename T>
 T QueueBuffer<T, 0u>::pop()
 {
 	if (size())
@@ -289,9 +334,10 @@ T &QueueBuffer<T, 0u>::head()
 template<typename T>
 T &QueueBuffer<T, 0u>::operator[](types::Size index)
 {
-	types::Size realIndex = ((indexTail + index >= capacity())
+	types::Size realIndex = (indexHead + index) % capacity();
+			/*((indexTail + index >= capacity())
 			? capacity() - indexTail + index
-			: indexTail + index);
+			: indexTail + index)*/
 	return queue[realIndex];
 }
 
@@ -309,10 +355,15 @@ void QueueBuffer<T, 0u>::resize(types::Size newCapacity)
 		T *newQueue = new T[newCapacity];
 		for (types::Size i = 0; i < capacity(); ++i)
 		{
-			newQueue[i] = queue[i];
+			newQueue[i] = operator [](i);
 		}
 		queueCapacity = newCapacity;
+
 		delete[] queue;
+		queue = newQueue;
+
+		indexHead = 0;
+		indexTail = size() - 1;
 	}
 }
 
@@ -331,27 +382,28 @@ types::Size QueueBuffer<T, 0u>::capacity() const noexcept
 template<typename T>
 const T &QueueBuffer<T, 0u>::tail() const
 {
-
+	return queue[indexTail];
 }
 
 template<typename T>
 const T &QueueBuffer<T, 0u>::head() const
 {
-
+	return queue[indexHead];
 }
 
 template<typename T>
 const T &QueueBuffer<T, 0u>::operator[](types::Size index) const
 {
-
+	types::Size realIndex = ((indexTail + index >= capacity())
+			? capacity() - indexTail + index
+			: indexTail + index);
+	return queue[realIndex];
 }
 
 template<typename T>
 const T *QueueBuffer<T, 0u>::data() const
 {
-
+	return queue;
 }
-
-
 
 #endif // QUEUEBUFFER_HPP

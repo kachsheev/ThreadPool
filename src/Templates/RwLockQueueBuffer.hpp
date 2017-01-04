@@ -18,34 +18,46 @@ struct RwLockQueueBuffer
 	{
 	}
 
+	void push(const T &t)
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		queue.push(t);
+	}
+
 	void push(T &&t)
 	{
-		Semaphore::Locker locker(rwLock);
+		volatile Semaphore::Locker locker(rwLock);
 		queue.push(t);
 	}
 
 	T pop()
 	{
-		Semaphore::Locker locker(rwLock);
+		volatile Semaphore::Locker locker(rwLock);
 		T t = queue.pop();
 		return t;
 	}
 
 	T &head()
 	{
-		Semaphore::Locker locker(rwLock);
+		volatile Semaphore::Locker locker(rwLock);
 		return queue.head();
 	}
 
 	types::Size size()
 	{
-		Semaphore::Locker locker(rwLock);
+		volatile Semaphore::Locker locker(rwLock);
 		return queue.size();
+	}
+
+	types::Size capacity()
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		return queue.capacity();
 	}
 
 	T &operator[](types::Size index)
 	{
-		Semaphore::Locker locker(rwLock);
+		volatile Semaphore::Locker locker(rwLock);
 		return queue[index];
 	}
 
@@ -54,5 +66,71 @@ private:
 	Semaphore rwLock;
 };
 
+template<typename T>
+struct RwLockQueueBuffer<T, 0u>
+{
+	RwLockQueueBuffer() : rwLock(1)
+	{
+	}
+
+	void push(const T &t)
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		queue.push(t);
+	}
+
+	void push(T &&t)
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		queue.push(t);
+	}
+
+	T pop()
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		T t = queue.pop();
+		return t;
+	}
+
+	T &head()
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		return queue.head();
+	}
+
+	types::Size size() const
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		return queue.size();
+	}
+
+	types::Size capacity() const
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		return queue.capacity();
+	}
+
+	T &operator[](types::Size index)
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		return queue[index];
+	}
+
+	const T &operator[](types::Size index) const
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		return queue[index];
+	}
+
+	void resize(types::Size newSize)
+	{
+		volatile Semaphore::Locker locker(rwLock);
+		queue.resize(newSize);
+	}
+
+private:
+	QueueBuffer<T, 0u> queue;
+	mutable Semaphore rwLock;
+};
 
 #endif // RWLOCKER_HPP
