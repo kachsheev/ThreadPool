@@ -9,14 +9,13 @@
 #include "TextStyle.hpp"
 #endif
 
-template<typename T>
 class AbstractTest
 {
 public:
 	AbstractTest(const AbstractTest &) = delete;
 	AbstractTest(AbstractTest &&) = delete;
 
-	AbstractTest() : testName("Null test")
+	AbstractTest() : countCalls(0), testName("Null test")
 	{
 	}
 	AbstractTest(std::string const &name) : testName(name)
@@ -33,13 +32,13 @@ public:
 	{
 	}
 
-	void operator()()
+	int operator()()
 	{
 		int returnCode;
 
 		printStart();
 
-		returnCode = start();
+		returnCode = runTest();
 		if(returnCode)
 		{
 			printMessageFalse();
@@ -50,60 +49,73 @@ public:
 		}
 
 		printEnd();
+		++countCalls;
 
 		return returnCode;
 	}
 
 protected:
-	virtual int start() = 0;
+	unsigned int getCountCalls() const
+	{
+		return countCalls;
+	}
+
+	virtual int runTest() = 0;
 
 private:
+#if defined(__linux)
 	void printStart()
 	{
-#	if defined(__linux)
 		std::cout << "> " TEXT_STYLE_BOLD TEXT_STYLE_CYAN "Start" TEXT_STYLE_NULL " " << testName << '\n';
-#	else
-		std::cout << "> Start " << __name << '\n';
-#	endif
 	}
 
 	void printEnd()
 	{
-#	if defined(__linux)
 		std::cout << "> " TEXT_STYLE_BOLD TEXT_STYLE_CYAN "End" TEXT_STYLE_NULL " " << testName << "\n\n";
-#	else
-		std::cout << "> End " << __name << "\n\n";
-#	endif
 	}
 
 	void printMessageTrue()
 	{
-#	if defined(__linux)
 		std::cout << "----> " TEXT_STYLE_BOLD TEXT_STYLE_GREEN "SUCCESS TEST\n" TEXT_STYLE_NULL;
-#	else
-		std::cout << "----> SUCCESS TEST\n";
-#	endif
 	}
 
 	void printMessageFalse()
 	{
-#	if defined(__linux)
 		std::cout << "----> " TEXT_STYLE_BOLD TEXT_STYLE_RED "FAILED TEST\n" TEXT_STYLE_NULL;
-#	else
-		std::cout << "----> FAILED TEST\n";
-#	endif
+	}
+#else
+	void printStart()
+	{
+		std::cout << "> " "Start" " " << testName << '\n';
 	}
 
+	void printEnd()
+	{
+		std::cout << "> " "End" " " << testName << "\n\n";
+	}
+
+	void printMessageTrue()
+	{
+		std::cout << "----> " "SUCCESS TEST\n";
+	}
+
+	void printMessageFalse()
+	{
+		std::cout << "----> " "FAILED TEST\n";
+	}
+#endif
+
+	unsigned int countCalls;
 	std::string testName;
+
+	friend class TestAggregator;
 };
 
-
-template<typename T>
 class TestAggregator
 {
 public:
-	TestAggregator(const TestAggregator<T> &) = delete;
-	TestAggregator(TestAggregator<T> &&) = delete;
+	TestAggregator(const TestAggregator &) = delete;
+	TestAggregator(TestAggregator &&) = delete;
 
 	TestAggregator() : aggregatorName("NONAME")
 	{
@@ -120,8 +132,8 @@ public:
 
 	~TestAggregator()
 	{
-		for(auto it : vtests)
-			delete it;
+//		for(auto it : vtests)
+//			delete it;
 	}
 
 	void start()
@@ -131,10 +143,10 @@ public:
 		printEnd();
 	}
 
-	void pushBackTest(AbstractTest<T> *test, int is_enable = 1)
+	void pushBackTest(AbstractTest *test, int isEnable = 1)
 	{
 		vtests.push_back(test);
-		enableTests.push_back(is_enable);
+		enableTests.push_back(isEnable);
 	}
 
 	virtual void printStatistic() const
@@ -147,35 +159,45 @@ protected:
 
 	virtual void startTests()
 	{
-		AbstractTest<T> *test;
+		AbstractTest *test;
 		for(auto it = vtests.begin(); it != vtests.end(); ++it)
 		{
 			test = *it;
-			returnCodes.push_back(test->start());
+			returnCodes.push_back((*test)());
 		}
 	}
 
+#if defined(__linux)
 	void printStart()
 	{
-#	if defined(__linux)
-		std::cout << TEXT_STYLE_BOLD TEXT_STYLE_YELLOW "-------------------- " TEXT_STYLE_NULL
-				  << aggregatorName
-				  << TEXT_STYLE_BOLD TEXT_STYLE_YELLOW " --------------------" TEXT_STYLE_NULL "\n";
-#	else
-		std::cout << "-------------------- " << __name << " --------------------" "\n";
-#	endif
+		std::cout << TEXT_STYLE_BOLD
+				TEXT_STYLE_YELLOW "-------------------- " TEXT_STYLE_NULL
+				<< aggregatorName
+				<< TEXT_STYLE_BOLD
+				TEXT_STYLE_YELLOW " --------------------" TEXT_STYLE_NULL "\n";
 	}
 
 	void printEnd()
 	{
-#	if defined(__linux)
-		std::cout << TEXT_STYLE_BOLD TEXT_STYLE_YELLOW "-------------------- " TEXT_STYLE_NULL
-					 "END"
-					 TEXT_STYLE_BOLD TEXT_STYLE_YELLOW " --------------------" TEXT_STYLE_NULL "\n\n";
-#	else
-		std::cout << "-------------------- "    "END"     " --------------------" "\n\n";
-#	endif
+		std::cout << TEXT_STYLE_BOLD
+				TEXT_STYLE_YELLOW "-------------------- " TEXT_STYLE_NULL
+				"END"
+				<< TEXT_STYLE_BOLD
+				TEXT_STYLE_YELLOW " --------------------" TEXT_STYLE_NULL "\n\n";
 	}
+#else
+	void printStart()
+	{
+		std::cout << "-------------------- "
+				<< __name
+				<< " --------------------" "\n";
+	}
+
+	void printEnd()
+	{
+		std::cout << "-------------------- "    "END"     " --------------------" "\n\n";
+	}
+#endif
 
 	std::string getName() const
 	{
@@ -196,9 +218,8 @@ protected:
 	}
 
 private:
-
 	std::string aggregatorName;
-	std::vector<AbstractTest<T> *> vtests;
+	std::vector<AbstractTest *> vtests;
 };
 
 #endif // TEST_BASETEST_H
