@@ -8,9 +8,9 @@ public:
 	{
 	}
 
-protected:
 	virtual void operator()() = 0;
 
+protected:
 	friend class ThreadPool;
 };
 
