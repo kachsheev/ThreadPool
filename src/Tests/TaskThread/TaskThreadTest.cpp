@@ -1,6 +1,6 @@
 #include "TaskThreadTest.hpp"
 
-TaskThreadTest::TaskThreadTest() :
+TaskThreadTest::TaskThreadTest() : TestAggregator("TaskThreadTest"),
 		defaultConstructor(),
 		addTaskDefaultConstructor(defaultConstructor.getThread()),
 		getStatusDefaultConstructor(defaultConstructor.getThread()),

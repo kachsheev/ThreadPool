@@ -10,7 +10,7 @@
 class QueueBufferTest: public TestAggregator
 {
 public:
-	QueueBufferTest() :
+	QueueBufferTest() : TestAggregator("QueueBufferTest"),
 			push(queue),
 			pop(queue),
 			head(queue),

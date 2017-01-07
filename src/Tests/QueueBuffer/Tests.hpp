@@ -16,12 +16,29 @@ public:
 	{
 	}
 
+	BasicTest(std::string const &name, QueueBuffer<T, SIZE> &queueBuffer) :
+			AbstractTest(name),
+			queue(queueBuffer)
+	{
+	}
+
+	BasicTest(std::string &&name, QueueBuffer<T, SIZE> &queueBuffer) :
+			AbstractTest(name),
+			queue(queueBuffer)
+	{
+	}
+
+	BasicTest(const char *name, QueueBuffer<T, SIZE> &queueBuffer) :
+			AbstractTest(name),
+			queue(queueBuffer)
+	{
+	}
+
 	virtual ~BasicTest()
 	{
 	}
 
 protected:
-	size_t count;
 	QueueBuffer<T, SIZE> &queue;
 };
 
@@ -29,7 +46,7 @@ template<typename T, types::Size SIZE>
 class Push: public BasicTest<T, SIZE>
 {
 public:
-	Push(QueueBuffer<T, SIZE> &queueBuffer) : BasicTest<T, SIZE>(queueBuffer)
+	Push(QueueBuffer<T, SIZE> &queueBuffer) : BasicTest<T, SIZE>("Push", queueBuffer)
 	{
 	}
 
@@ -45,7 +62,7 @@ template<typename T, types::Size SIZE>
 class Pop: public BasicTest<T, SIZE>
 {
 public:
-	Pop(QueueBuffer<T, SIZE> &queueBuffer) : BasicTest<T, SIZE>(queueBuffer)
+	Pop(QueueBuffer<T, SIZE> &queueBuffer) : BasicTest<T, SIZE>("Pop", queueBuffer)
 	{
 	}
 
@@ -61,7 +78,7 @@ template<typename T, types::Size SIZE>
 class Tail: public BasicTest<T, SIZE>
 {
 public:
-	Tail(QueueBuffer<T, SIZE> &queueBuffer) : BasicTest<T, SIZE>(queueBuffer)
+	Tail(QueueBuffer<T, SIZE> &queueBuffer) : BasicTest<T, SIZE>("Tail", queueBuffer)
 	{
 	}
 
@@ -77,7 +94,7 @@ template<typename T, types::Size SIZE>
 class Head: public BasicTest<T, SIZE>
 {
 public:
-	Head(QueueBuffer<T, SIZE> &queueBuffer) : BasicTest<T, SIZE>(queueBuffer)
+	Head(QueueBuffer<T, SIZE> &queueBuffer) : BasicTest<T, SIZE>("Head", queueBuffer)
 	{
 	}
 
@@ -93,7 +110,7 @@ template<typename T, types::Size SIZE>
 class Indexes: public BasicTest<T, SIZE>
 {
 public:
-	Indexes(QueueBuffer<T, SIZE> &queueBuffer) : BasicTest<T, SIZE>(queueBuffer)
+	Indexes(QueueBuffer<T, SIZE> &queueBuffer) : BasicTest<T, SIZE>("Indexes", queueBuffer)
 	{
 	}
 
@@ -109,7 +126,7 @@ template<typename T>
 class Resize: public BasicTest<T, 0u>
 {
 public:
-	Resize(QueueBuffer<T, 0u> &queueBuffer) : BasicTest<T, 0u>(queueBuffer)
+	Resize(QueueBuffer<T, 0u> &queueBuffer) : BasicTest<T, 0u>("Resize", queueBuffer)
 	{
 	}
 
@@ -128,10 +145,8 @@ protected:
 template<typename T, types::Size SIZE>
 int QueueBufferTests::Push<T, SIZE>::runTest()
 {
-	std::cout << "QueueBufferTest::Push<T, SIZE>::runTest()\n";
-
 	int valid = 0;
-	if (this->count == 0)
+	if (this->getCountCalls() == 0)
 	{
 		int array[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
@@ -158,13 +173,10 @@ int QueueBufferTests::Push<T, SIZE>::runTest()
 		}
 
 	}
-	else if (this->count == 1)
+	else if (this->getCountCalls() == 2)
 	{
 
 	}
-
-	std::cout << '\n';
-	std::cout.flush();
 
 	return valid;
 }
@@ -172,10 +184,8 @@ int QueueBufferTests::Push<T, SIZE>::runTest()
 template<typename T, types::Size SIZE>
 int QueueBufferTests::Pop<T, SIZE>::runTest()
 {
-	std::cout << "QueueBufferTest::Pop<T, SIZE>::runTest()\n";
-
 	int valid = 0;
-	if (this->count == 0)
+	if (this->getCountCalls() == 0)
 	{
 		std::cout << "Before:";
 		for (size_t i = 0; i < this->queue.size(); ++i)
@@ -215,10 +225,7 @@ int QueueBufferTests::Pop<T, SIZE>::runTest()
 template<typename T, types::Size SIZE>
 int QueueBufferTests::Tail<T, SIZE>::runTest()
 {
-	std::cout << "QueueBufferTests::Tail<T, SIZE>::runTest()\n";
-
 	int valid;
-
 	if (this->queue.head() == 8)
 	{
 		valid = 0;
@@ -227,17 +234,12 @@ int QueueBufferTests::Tail<T, SIZE>::runTest()
 	{
 		valid = 1;
 	}
-	std::cout << '\n';
-	std::cout.flush();
-
 	return valid;
 }
 
 template<typename T, types::Size SIZE>
 int QueueBufferTests::Head<T, SIZE>::runTest()
 {
-	std::cout << "QueueBufferTests::Head<T, SIZE>::runTest()\n";
-
 	int valid;
 
 	if (this->queue.tail() == 5)
@@ -255,8 +257,6 @@ int QueueBufferTests::Head<T, SIZE>::runTest()
 template<typename T>
 int QueueBufferTests::Resize<T>::runTest()
 {
-	std::cout << "QueueBufferTests::Resize<T>::runTest()\n";
-
 	return 1;
 }
 

@@ -5,9 +5,9 @@
 #include <vector>
 #include <iostream>
 
-#ifdef __linux
+//#ifdef __linux
 #include "TextStyle.hpp"
-#endif
+//#endif
 
 class AbstractTest
 {
@@ -86,22 +86,34 @@ private:
 #else
 	void printStart()
 	{
-		std::cout << "> " "Start" " " << testName << '\n';
+		std::cout << "> ";
+		setConsoleText(TEXT_CYAN, TEXT_BACKGROUND_BLACK);
+		std::cout << "Start" " " << testName << '\n';
+		setConsoleText(TEXT_WHITE, TEXT_BACKGROUND_BLACK);
 	}
 
 	void printEnd()
 	{
-		std::cout << "> " "End" " " << testName << "\n\n";
+		std::cout << "> ";
+		setConsoleText(TEXT_CYAN, TEXT_BACKGROUND_BLACK);
+		std::cout << "End" " " << testName << "\n\n";
+		setConsoleText(TEXT_WHITE, TEXT_BACKGROUND_BLACK);
 	}
 
 	void printMessageTrue()
 	{
-		std::cout << "----> " "SUCCESS TEST\n";
+		std::cout << "----> ";
+		setConsoleText(TEXT_GREEN, TEXT_BACKGROUND_BLACK);
+		std::cout << "SUCCESS TEST\n";
+		setConsoleText(TEXT_WHITE, TEXT_BACKGROUND_BLACK);
 	}
 
 	void printMessageFalse()
 	{
-		std::cout << "----> " "FAILED TEST\n";
+		std::cout << "----> ";
+		setConsoleText(TEXT_RED, TEXT_BACKGROUND_BLACK);
+		std::cout << "FAILED TEST\n";
+		setConsoleText(TEXT_WHITE, TEXT_BACKGROUND_BLACK);
 	}
 #endif
 
@@ -130,7 +142,7 @@ public:
 	{
 	}
 
-	~TestAggregator()
+	virtual ~TestAggregator()
 	{
 //		for(auto it : vtests)
 //			delete it;
@@ -189,7 +201,7 @@ protected:
 	void printStart()
 	{
 		std::cout << "-------------------- "
-				<< __name
+				<< aggregatorName
 				<< " --------------------" "\n";
 	}
 
