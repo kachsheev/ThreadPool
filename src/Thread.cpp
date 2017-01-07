@@ -27,7 +27,9 @@ void Thread::start()
 
 void Thread::join()
 {
-	pthread_join(descriptor.get(), nullptr);
+	if (getStatus() != Thread::Status::FINISHED
+			&& getStatus() != Thread::Status::NOT_RUN)
+		pthread_join(descriptor.get(), nullptr);
 }
 
 void Thread::cancel()
