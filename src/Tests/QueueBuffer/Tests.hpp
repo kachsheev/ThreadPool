@@ -1,4 +1,4 @@
-#ifndef TESTS_QUEUEBUFFER_TESTS_HPP
+﻿#ifndef TESTS_QUEUEBUFFER_TESTS_HPP
 #define TESTS_QUEUEBUFFER_TESTS_HPP
 
 #include <iostream>
@@ -157,7 +157,6 @@ int QueueBufferTests::Push<T, SIZE>::runTest()
 			std::cout << ' ' << array[i];
 		}
 		std::cout << '\n';
-		std::cout.flush();
 
 		std::cout << "Added elements:";
 		for (size_t i = 0; i < this->queue.size(); ++i)
@@ -171,12 +170,13 @@ int QueueBufferTests::Push<T, SIZE>::runTest()
 			if (this->queue[i] != array[i])
 				++valid;
 		}
-
 	}
 	else if (this->getCountCalls() == 2)
 	{
 
 	}
+
+	std::cout << '\n';
 
 	return valid;
 }
@@ -216,8 +216,8 @@ int QueueBufferTests::Pop<T, SIZE>::runTest()
 				++valid;
 		}
 	}
+
 	std::cout << '\n';
-	std::cout.flush();
 
 	return valid;
 }
