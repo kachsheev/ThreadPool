@@ -5,13 +5,14 @@
 
 namespace types
 {
+
 typedef std::size_t Size;
 typedef std::uint64_t Uint64;
 typedef void*(*ThreadTaskType)(void *);
 
 enum class TaskStatus
 {
-	ERROR,
+	FAILED,
 	MISSED,
 	QUEUED,
 	PROCESS,
