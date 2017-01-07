@@ -5,9 +5,7 @@
 #include <vector>
 #include <iostream>
 
-//#ifdef __linux
 #include "TextStyle.hpp"
-//#endif
 
 class AbstractTest
 {
@@ -15,16 +13,24 @@ public:
 	AbstractTest(const AbstractTest &) = delete;
 	AbstractTest(AbstractTest &&) = delete;
 
-	AbstractTest() : countCalls(0), testName("Null test")
+	AbstractTest() :
+			countCalls(0),
+			testName("Null test")
 	{
 	}
-	AbstractTest(std::string const &name) : testName(name)
+	AbstractTest(std::string const &name) :
+			countCalls(0),
+			testName(name)
 	{
 	}
-	AbstractTest(std::string &&name) : testName(name)
+	AbstractTest(std::string &&name) :
+			countCalls(0),
+			testName(name)
 	{
 	}
-	AbstractTest(char const *nameStr)   :  testName(nameStr)
+	AbstractTest(char const *nameStr) :
+			countCalls(0),
+			testName(nameStr)
 	{
 	}
 
@@ -49,6 +55,7 @@ public:
 		}
 
 		printEnd();
+
 		++countCalls;
 
 		return returnCode;
@@ -63,27 +70,6 @@ protected:
 	virtual int runTest() = 0;
 
 private:
-#if defined(__linux)
-	void printStart()
-	{
-		std::cout << "> " TEXT_STYLE_BOLD TEXT_STYLE_CYAN "Start" TEXT_STYLE_NULL " " << testName << '\n';
-	}
-
-	void printEnd()
-	{
-		std::cout << "> " TEXT_STYLE_BOLD TEXT_STYLE_CYAN "End" TEXT_STYLE_NULL " " << testName << "\n\n";
-	}
-
-	void printMessageTrue()
-	{
-		std::cout << "----> " TEXT_STYLE_BOLD TEXT_STYLE_GREEN "SUCCESS TEST\n" TEXT_STYLE_NULL;
-	}
-
-	void printMessageFalse()
-	{
-		std::cout << "----> " TEXT_STYLE_BOLD TEXT_STYLE_RED "FAILED TEST\n" TEXT_STYLE_NULL;
-	}
-#else
 	void printStart()
 	{
 		std::cout << "> ";
@@ -115,7 +101,6 @@ private:
 		std::cout << "FAILED TEST\n";
 		setConsoleText(TEXT_WHITE, TEXT_BACKGROUND_BLACK);
 	}
-#endif
 
 	unsigned int countCalls;
 	std::string testName;
@@ -132,20 +117,21 @@ public:
 	TestAggregator() : aggregatorName("NONAME")
 	{
 	}
+
 	TestAggregator(char const *name) : aggregatorName(name)
 	{
 	}
+
 	TestAggregator(std::string const &name) : aggregatorName(name)
 	{
 	}
+
 	TestAggregator(std::string &&name) : aggregatorName(name)
 	{
 	}
 
 	virtual ~TestAggregator()
 	{
-//		for(auto it : vtests)
-//			delete it;
 	}
 
 	void start()
@@ -179,37 +165,23 @@ protected:
 		}
 	}
 
-#if defined(__linux)
 	void printStart()
 	{
-		std::cout << TEXT_STYLE_BOLD
-				TEXT_STYLE_YELLOW "-------------------- " TEXT_STYLE_NULL
-				<< aggregatorName
-				<< TEXT_STYLE_BOLD
-				TEXT_STYLE_YELLOW " --------------------" TEXT_STYLE_NULL "\n";
+		std::cout << "-------------------- ";
+		setConsoleText(TEXT_YELLOW, TEXT_BACKGROUND_BLACK);
+		std::cout << aggregatorName;
+		setConsoleText(TEXT_WHITE, TEXT_BACKGROUND_BLACK);
+		std::cout << " --------------------" "\n";
 	}
 
 	void printEnd()
 	{
-		std::cout << TEXT_STYLE_BOLD
-				TEXT_STYLE_YELLOW "-------------------- " TEXT_STYLE_NULL
-				"END"
-				<< TEXT_STYLE_BOLD
-				TEXT_STYLE_YELLOW " --------------------" TEXT_STYLE_NULL "\n\n";
+		std::cout << "-------------------- ";
+		setConsoleText(TEXT_YELLOW, TEXT_BACKGROUND_BLACK);
+		std::cout << "END";
+		setConsoleText(TEXT_WHITE, TEXT_BACKGROUND_BLACK);
+		std::cout << " --------------------" "\n\n";
 	}
-#else
-	void printStart()
-	{
-		std::cout << "-------------------- "
-				<< aggregatorName
-				<< " --------------------" "\n";
-	}
-
-	void printEnd()
-	{
-		std::cout << "-------------------- "    "END"     " --------------------" "\n\n";
-	}
-#endif
 
 	std::string getName() const
 	{
