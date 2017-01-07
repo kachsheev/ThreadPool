@@ -3,27 +3,7 @@
 
 using std::cout;
 
-QueueBufferTest::~QueueBufferTest()
-{
-}
-
 /*
-void QueueBufferTest::operator()()
-{
-	for (count = 0; count < 2; ++count)
-	{
-		push();
-		pop();
-
-		if (!count)
-		{
-			tail();
-			head();
-		}
-	}
-}
-
-
 void QueueBufferTest::push()
 {
 	cout << "QueueBufferTest.push()\n";

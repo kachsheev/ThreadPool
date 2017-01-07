@@ -22,7 +22,9 @@ public:
 		this->pushBackTest(&tail);
 	}
 
-	virtual ~QueueBufferTest();
+	virtual ~QueueBufferTest()
+	{
+	}
 
 private:
 	using TestAggregator::pushBackTest;
